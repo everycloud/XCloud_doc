@@ -1,0 +1,36 @@
+#install cloudify cli
+
+yum install -y epel-release
+yum -y install python-pip
+rpm -i cloudify-centos-Core-cli-3.3.1-sp_b310.x86_64.rpm
+
+
+#create cloudify account
+useradd cloudify -d /home/cloudify -m -s /bin/bash
+vi /etc/sudoers
+添加配置 ：cloudify ALL=(ALL) NOPASSWD: ALL
+
+#ssh互信
+su cloudify
+/usr/bin/ssh-keygen -t rsa
+cd ~/.ssh && cat id_rsa.pub >> authorized_keys
+chmod 600 authorized_keys
+
+#安装cloudify manager
+source /opt/cfy/env/bin/activate
+cd ~
+mkdir cloudify
+cd cloudify
+cfy init
+cd ~
+git clone https://github.com/cloudify-cosmo/cloudify-manager-blueprints
+git checkout 3.3.1
+
+#修改cloudify-manager-blueprints/simple-manager-blueprint-inputs.yaml
+public ip 对外访问ip
+private ip cloudify内部节点访问ip
+其他参考注释
+
+
+#安装cloudify-manager
+cfy bootstrap --install-plugins -p ../workspace/cloudify-manager-blueprints/simple-manager-blueprint.yaml -i ../workspace/cloudify-manager-blueprints/simple-manager-blueprint-inputs.yaml
